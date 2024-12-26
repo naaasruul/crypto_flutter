@@ -10,16 +10,18 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
+  String selectedCrypto = 'BTC';
   double rate = 0;
 
   @override
   void initState() {
     super.initState();
-    getRates();
+    getRates(selectedCrypto, selectedCurrency);
   }
-  Future getRates() async{
+
+  Future getRates(selectedCrypto, selectedCurrency) async{
     ApiHelper apiHelper = ApiHelper();
-    var data = await apiHelper.getRates('BTC', selectedCurrency);
+    var data = await apiHelper.getRates(selectedCrypto, selectedCurrency);
     setState(() {
       rate = data['rate'];
     });
@@ -44,9 +46,45 @@ class _PriceScreenState extends State<PriceScreen> {
           setState(() {
             selectedCurrency = value as String;
           });
-
-          getRates();
+          cryptoDisplay();
+          getRates(selectedCrypto, selectedCurrency);
         });
+  }
+
+  List<Widget> cryptoDisplay(){
+
+    List<Widget> cryptoCard = [];
+
+    for(var crypto in cryptoList){
+      cryptoCard.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+          child: Card(
+            color: Colors.lightBlueAccent,
+            elevation: 5.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+              child: Text(
+                '1 $crypto = ${rate.toStringAsFixed(0)} $selectedCurrency',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+
+
+    return cryptoCard;
+
   }
 
 
@@ -59,27 +97,11 @@ class _PriceScreenState extends State<PriceScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = ${rate.toStringAsFixed(2)} $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cryptoDisplay(),
           ),
           Container(
             height: 150.0,
